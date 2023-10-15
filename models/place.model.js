@@ -29,7 +29,7 @@ const Places = model('Places', new Schema({
         type: Schema.Types.ObjectId,
         required: true,
     },
-    brandId: {
+    choiceId: {
         type: Schema.Types.ObjectId,
         required: true,
     },

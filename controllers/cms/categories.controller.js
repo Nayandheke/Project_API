@@ -1,7 +1,7 @@
 const {showError, validationError} = require("../../lib")
 const {Category } = require("../../models")
 
-class categoryController {
+class CategoriesController {
     index = async(req,res,next) => {
         try {
             const categories = await Category.find()
@@ -87,4 +87,4 @@ class categoryController {
 }
 
 
-module.exports = new categoryController
+module.exports = new CategoriesController
