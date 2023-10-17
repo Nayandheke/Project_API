@@ -1,11 +1,13 @@
 const express = require('express')
 const authRoutes = require('./auth')
 const cmsRoutes = require('./cms')
-const { auth, cmsUser, adminUser } = require('../lib')
+const frontRoutes = require('./front')
+const { auth, cmsUser } = require('../lib')
 
 const router = express.Router()
 
 router.use(authRoutes)
+router.use(frontRoutes)
 router.use('/cms',auth,cmsUser, cmsRoutes)
 
 

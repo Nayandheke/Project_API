@@ -5,8 +5,33 @@ const { unlinkSync } = require("node:fs")
 class PlaceController {
     index = async(req,res,next) => {
         try {
-            const places = await Place.find()
-            res.json(places)
+            const places = await Place.aggregate([
+                {$lookup: {from:'categories', localField:'categoryId', foreignField:'_id', as:'category'}},
+                {$lookup: {from:'choices', localField:'choiceId', foreignField:'_id', as:'choice'}}
+            ]).exec()
+
+            let result = places.map(place => {
+                return{
+                    _id: place._id,
+                    'name': place.name,
+                    'summary': place.summary,
+                    'description': place.description,
+                    'price': place.price,
+                    'discounted_price': place.discounted_price,
+                    'images': place.images,
+                    'categoryId': place.categoryId,
+                    'choiceId': place.choiceId,
+                    'status': place.status,
+                    'featured': place.featured,
+                    'createdAt': place.createdAt,
+                    'updatedAt': place.updatedAt,
+                    'category': place.category[0],
+                    'choice': place.choice[0],
+                    __v:place.__v,
+                }
+            })
+
+            res.json(result)
         } catch (err) {
             showError(err, next)
         }
