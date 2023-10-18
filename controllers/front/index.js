@@ -1,4 +1,4 @@
-const placeCtrl = require('./places.controller')
-const listCtrl = require('./list.controller')
+const PlaceCtrl = require('./places.controller')
+const ListCtrl = require('./list.controller')
 
-module.exports = {placeCtrl, listCtrl}
+module.exports = {PlaceCtrl, ListCtrl}
