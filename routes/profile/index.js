@@ -13,6 +13,8 @@ router.patch('/profile/password', ProfileCtrl.password)
 
 router.post('/places/:id/review', ProfileCtrl.addReview)
 
+router.get('/profile/reviews', ProfileCtrl.reviews)
 
+router.get('/checkout', ProfileCtrl.checkout)
 
 module.exports = router

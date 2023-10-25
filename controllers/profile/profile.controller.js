@@ -1,6 +1,8 @@
+const { default: mongoose } = require("mongoose")
 const { showError } = require('../../lib')
 const { User, Review } = require('../../models')
 const bcrypt = require('bcryptjs')
+const { show } = require("../cms/places.controller")
 
 class ProfileController {
     details = async( req, res, next) => {
@@ -95,17 +97,38 @@ class ProfileController {
         }
     }
 
-    bought = async( req, res, next) => {}
+    reviews = async( req, res, next) => {
+        try {
+            const reviews = await Review.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId(req.user._id) } },
+                { $lookup: { from: 'places', localField: 'placeId', foreignField: '_id', as: 'place'}}
+            ]).exec()
 
-    checkout = async( req, res, next) => {}
+            const result = reviews.map(review => {
+                return {
+                    "_id": review._id,
+                    "comment": review.comment,
+                    "rating": review.rating,
+                    "placeId": review.placeId,
+                    "userId": review.userId,
+                    "createdAt": review.createdAt,
+                    "updatedAt": review.updatedAt,
+                    "__v": review.__v,
+                    place: review.place[0],
+                }
+            })
 
-    reviews = async( req, res, next) => {}
+            res.json(result)
+        } catch (err) {
+            showError(err, next)
+        }
+    }
 
     addReview = async( req, res, next) => {
         try {
             const { rating, comment} = req.body
 
-            await Review.create({rating, comment, userId: req.user._id, productId: req.params.id})
+            await Review.create({rating, comment, userId: req.user._id, placeId: req.params.id})
 
             res.json({
                 success: 'Thank you for your review.'
@@ -115,6 +138,19 @@ class ProfileController {
             showError(err, next)
         }
     }
+
+    bought = async( req, res, next) => {}
+
+    checkout = async( req, res, next) => {
+        try {
+            
+        } catch (err) {
+            showError( err, next)
+        }
+    }
+
+
+
 }
 
 module.exports = new ProfileController

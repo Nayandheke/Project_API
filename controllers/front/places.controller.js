@@ -1,5 +1,7 @@
+const { default: mongoose } = require('mongoose')
 const { showError } = require("../../lib")
-const { Place } = require("../../models")
+const { Place, Choice, Review } = require("../../models")
+const { reviews } = require('../profile/profile.controller')
 
 class PlaceController {
     top = async (req, res, next) => {
@@ -11,6 +13,7 @@ class PlaceController {
             showError(err, next)
         }
     }
+
     featured = async (req, res, next) => {
         try {
             const places = await Place.find({status:true, featured:true}).exec()
@@ -35,13 +38,61 @@ class PlaceController {
         }
     }
 
-    byId = async(req, res, next) => {
+    byId = async (req, res, next) => {
         try {
-            const place = await Place.findOne({_id:req.params.id,status:true}).exec()
+            const place =  await Place.findOne({_id: req.params.id, status: true}).exec()
 
-            res.json(place)
+            if(place){
+                const reviews = await Review.aggregate([
+                    {$match: {placeId: new mongoose.Types.ObjectId(place._id)}},
+                    {$lookup: {from: 'users', localField: 'userId', foreignField: '_id', as: 'user'}}
+                ]).exec()
+
+                const result = reviews.map(review => {
+                    return{
+                        _id: review._id,
+                        placeId: review.placeId,
+                        userId: review.userId,
+                        comment: review.comment,
+                        rating: review.rating,
+                        createdAt: review.createdAt,
+                        updatedAt: review.updatedAt,
+                        __v: review.__v,
+                        user: review.user[0],
+                    }
+                })
+
+                const choice = await Choice.findById(place.choiceId)
+
+                res.json({
+                    _id: place._id,
+                    name: place.name,
+                    summary: place.summary,
+                    description: place.description,
+                    price: place.price,
+                    discounted_price: place.discounted_price,
+                    images: place.images,
+                    categoryId: place.categoryId,
+                    choiceId: place.choiceId,
+                    status: place.status,
+                    featured: place.featured,
+                    createdAt: place.createdAt,
+                    updatedAt: place.updatedAt,
+                    __v: place.__v,
+                    reviews: result,
+                    choice
+                })
+            }
+            else{
+                next({
+                    Message: "Place not found.",
+                    status: 404
+                })
+            }
+            
         } catch (err) {
             showError(err, next)
+            
         }
     }
 

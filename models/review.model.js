@@ -11,7 +11,7 @@ const Review = model('Review', new Schema({
         min: 1,
         max: 5,
     }, 
-    productId: {
+    placeId: {
         type: Schema.Types.ObjectId,
         required: true,
     },
