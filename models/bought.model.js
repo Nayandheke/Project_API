@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose')
 
-const Order = model('Order', new Schema({
+const Bought = model('Bought', new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -17,4 +17,4 @@ const Order = model('Order', new Schema({
 })
 )
 
-module.exports = Order
+module.exports = Bought

@@ -12,9 +12,11 @@ router.put('/profile/password', ProfileCtrl.password)
 router.patch('/profile/password', ProfileCtrl.password)
 
 router.post('/places/:id/review', ProfileCtrl.addReview)
-
 router.get('/profile/reviews', ProfileCtrl.reviews)
 
-router.get('/checkout', ProfileCtrl.checkout)
+router.get('/profile/boughts', ProfileCtrl.boughts)
+
+router.post('/checkout', ProfileCtrl.checkout)
+
 
 module.exports = router

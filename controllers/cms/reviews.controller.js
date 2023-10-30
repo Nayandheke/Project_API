@@ -6,10 +6,9 @@ class ReviewsController {
     index = async (req,res,next) => { 
         try {
             const reviews = await Review.aggregate([
-                { $lookup: { from: 'places', localField: 'placeId', foreignField: '_id', as: 'place' } },
-                { $lookup: {from: 'users', localField: 'userId', foreignField: '_id', as: 'user'}},
+                {$lookup: {from: 'places', localField: 'placeId', foreignField: '_id', as: 'place'}},
+                {$lookup: {from: 'user', localField: 'userId', foreignField: '_id', as: 'user'}},
             ]).exec()
-
             const result = reviews.map(review => {
                 return {
                     _id: review._id,
@@ -24,11 +23,9 @@ class ReviewsController {
                     user: review.user[0],
                 }
             })
-
             res.json(
                 result
             )
-
         } catch (err) {
             showError(err, next)
         }
@@ -36,7 +33,6 @@ class ReviewsController {
 
     destroy = async (req,res,next) => {
         try {
-            
             const review = await Review.findByIdAndDelete(req.params.id)
             if(review){
                 res.json({

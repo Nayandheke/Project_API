@@ -9,9 +9,11 @@ const router = express.Router()
 
 router.use(authRoutes)
 router.use(frontRoutes)
-router.use('/cms',auth,cmsUser, cmsRoutes)
-router.use(auth, profileRoutes)
-
+router.use('/cms', auth, cmsUser, cmsRoutes)
+router.get('/image/:filename', async (req,res,next) => {
+    res.sendFile(`uploads/${req.params.filename}`, {root: './'})
+} )
+router.use(auth, profileRoutes )
 
 router.use((req, res, next) => {
     next({

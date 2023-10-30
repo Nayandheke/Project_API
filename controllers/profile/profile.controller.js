@@ -1,8 +1,9 @@
 const { default: mongoose } = require("mongoose")
 const { showError } = require('../../lib')
-const { User, Review } = require('../../models')
+const { User, Review, Bought, BoughtDetail, Place } = require('../../models')
 const bcrypt = require('bcryptjs')
 const { show } = require("../cms/places.controller")
+const Places = require("../../models/place.model")
 
 class ProfileController {
     details = async( req, res, next) => {
@@ -139,13 +140,75 @@ class ProfileController {
         }
     }
 
-    bought = async( req, res, next) => {}
+    boughts = async( req, res, next) => {
+        try {
+            const boughts = await Bought.find({userId: req.user._id}).exec()
+
+            const result = []
+
+            for(let bought of boughts){
+                const details = await BoughtDetail.aggregate([
+                    {$match: {boughtId: new mongoose.Types.ObjectId(bought._id)}},
+                    {$lookup: {from: 'places', localField: 'placeId', foreignField: '_id', as: 'place'}}
+                ]).exec()
+
+                const temp = details.map((details) => {
+                    const places = details.places || []; // Check if 'places' is defined
+                    return {
+                        _id: details._id,
+                        boughtId: details.boughtId,
+                        placeId: details.placeId,
+                        qty: details.qty,
+                        price: details.price,
+                        total: details.total,
+                        createdAt: details.createdAt,
+                        updatedAt: details.updatedAt,
+                        __v: details.__v,
+                        places: places.length > 0 ? places[0] : null, // Handle 'places' being empty
+                    };
+                });
+                
+            const user = bought.user || []; // Check if 'user' is defined
+            result.push({
+                _id: bought._id,
+                userId: bought.userId,
+                name:bought.name,
+                status: bought.status,
+                createdAt: bought.createdAt,
+                updatedAt: bought.updatedAt,
+                __v: bought.__v,
+                details: temp,
+            })
+            }
+                
+            res.json(result)
+            
+        } catch (err) {
+            showError(err,next)
+        }
+    }
 
     checkout = async( req, res, next) => {
         try {
-            
+            const cart = req.body
+            const bought = await Bought.create({ userId: req.user._id })
+            for (let item of cart) {
+                const place = await Place.findById(item.placeId)
+                const price = place.discounted_price ? place.discounted_price : place.price
+                await BoughtDetail.create({
+                    boughtId: bought._id,
+                    placeId: item.placeId,
+                    qty: item.qty,
+                    price,
+                    total: price * item.qty,
+                    name: "Default Name" 
+                });
+            }
+            res.json({
+                success: "Thank you for your bought."
+            })
         } catch (err) {
-            showError( err, next)
+            showError(err, next)
         }
     }
 

@@ -28,7 +28,7 @@ class PlaceController {
         try {
             const places = await Place.aggregate([
                 {$match: {status:true}},
-                {$lookup:{from:'mostdetails', localField:'_id', foreignField:'placeId', as:'bought_count'}},
+                {$lookup:{from:'boughtdetails', localField:'_id', foreignField:'placeId', as:'bought_count'}},
                 {$addFields: {bought_count: {$size: '$bought_count'}}},
             ]).sort({'bought_count': 'desc'}).exec()
 
