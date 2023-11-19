@@ -125,6 +125,48 @@ class PlaceController {
             showError(err, next)
         }
     }
+
+    image = async (req, res, next) => {
+        try {
+            const {filename, id} = req.params
+
+            let place = await Place.findById(id);
+
+            if (place) {
+                if(place.images.length > 1){
+
+                    let temp = []
+    
+                    for (let image of place.images) {
+                        if(filename == image) {
+                            unlinkSync(`uploads/${image}`)
+                        }
+                        else {
+                            temp.push(image)
+                        }
+                    }
+                        await Place.findByIdAndUpdate(id, {images: temp})
+
+                        res.json({
+                            success: 'Place image removed.'
+                        })
+                } else{
+                    next({
+                        message: 'At least one image is must.',
+                        status: 403,
+                    })
+                }
+            }
+            else {
+                next({
+                    message: 'Place not found',
+                    status: 404,
+                })
+            }
+        } catch (err) {
+            showError(err, next)
+        }
+    }
 }
 
 
