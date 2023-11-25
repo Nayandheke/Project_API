@@ -17,7 +17,7 @@ class ListController {
 
     categoryById = async(req, res, next) => {
         try {
-            const category = await Category.findById({_id: req.params.id, status: true}).exec()
+            const category = await Category.findOne({_id: req.params.id, status: true}).exec()
 
             if(category){
                 res.json(category)
@@ -30,7 +30,6 @@ class ListController {
             }  
         } catch (err) {
             showError(err,next)
-            
         }
     }
 
@@ -50,7 +49,7 @@ class ListController {
 
     choiceById = async(req, res, next) => {
         try {
-            const choices = await Choice.findById({_id: req.params.id, status: true}).exec()
+            const choices = await Choice.findOne({_id: req.params.id, status: true}).exec()
 
             if(choices){
                 res.json(choices)
